@@ -7,7 +7,7 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 # ros message
-from vesc_msg.msg import VescInput
+from vesc_msgs.msg import VescInput
 from joystick import joystick_manager
 import threading
 
@@ -31,7 +31,7 @@ class joystick_vesc_msg_creator:
             elif key == 5 :
                 self.fspeed = self.__convert_speed(value)
             elif key == 0 :
-                self.servo_position = self.__convert_servo(value)
+                self.fservo_position = self.__convert_servo(value)
         elif event_type == JOYHATMOTION:
             if key == 0 :
                 self.fduty_cycle += self.__convert_duty_cycle(value[1])
@@ -50,7 +50,7 @@ class joystick_vesc_msg_creator:
 
     def get_send_message(self):
         self.is_ready = False
-        return self.fbrake, self.fspeed, self.servo_position, self.duty_cycle
+        return self.fbrake, self.fspeed, self.fservo_position, self.fduty_cycle
 
     def msg_ready(self):
         return self.is_ready
@@ -65,15 +65,18 @@ def main():
 
     rate = rospy.Rate(20)
     vesc_input = VescInput()
-    joyManager.Start()
+    joyManager.start()
     while not rospy.is_shutdown():
         while not joyObserver.msg_ready():
             rate.sleep()
             continue
 
-        vesc_input.write_brake, /
-        vesc_input.write_speed, /
-        vesc_input.write_servo_position, /
+        vesc_input.write_brake, \
+        vesc_input.write_speed, \
+        vesc_input.write_servo_position, \
         vesc_input.write_duty_cycle = joyObserver.get_send_message()
         control_pub.publish(vesc_input)
         rate.sleep()
+
+if __name__ == '__main__':
+    main()

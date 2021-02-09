@@ -3,6 +3,7 @@
 
 import pygame
 from pygame.locals import *
+import threading
 
 
 class joystick_handler(object):
@@ -54,7 +55,7 @@ class joystick_manager(threading.Thread):
         for observer in self.observers:
             observer.notify(event_type, key, value)
 
-    def run(self, detector):
+    def run(self):
         while self.isRun:
             for event in [pygame.event.wait(), ] + pygame.event.get():
                 # QUIT             none
@@ -72,7 +73,7 @@ class joystick_manager(threading.Thread):
                 # VIDEORESIZE      size, w, h
                 # VIDEOEXPOSE      none
                 # USEREVENT        code
-                elif event.type == KEYDOWN and event.key in [K_ESCAPE, K_q]:
+                if event.type == KEYDOWN and event.key in [K_ESCAPE, K_q]:
                     self.quit()
                 elif event.type == JOYAXISMOTION: 
                     self.notify_observer(event.type, event.axis, event.value)
