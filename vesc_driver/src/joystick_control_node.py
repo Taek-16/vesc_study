@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 # ros message
 from vesc_msg.msg import VescInput
+from std_msgs.msg import Float64
 from joystick import joystick_manager
 import threading
 
@@ -37,16 +38,16 @@ class joystick_vesc_msg_creator:
                 self.fduty_cycle += self.__convert_duty_cycle(value[1])
 
     def __convert_speed(self, value):
-        return (value + 1) * 1000
+        return abs((value + 1) * 1000)
 
     def __convert_servo(self, value):
-        return (value + 1)/2
+        return abs((value + 1)/2)
 
     def __convert_duty_cycle(self, value):
         return value * 0.1
 
     def __convert_brake(self, value):
-        return (value + 1)*10
+        return abs((value + 1)*10)
 
     def get_send_message(self):
         self.is_ready = False
@@ -57,23 +58,37 @@ class joystick_vesc_msg_creator:
 
 def main():
     rospy.init_node("control_node")
-    control_pub = rospy.Publisher("joystick_input", VescInput, queue_size=1)
+    #control_pub = rospy.Publisher("joystick_input", VescInput, queue_size=1)
+    speed_pub = rospy.Publisher("commands/motor/speed", Float64, queue_size=1)
+    duty_pub = rospy.Publisher("commands/motor/duty_cycle", Float64, queue_size=1)
+    brake_pub = rospy.Publisher("commands/motor/brake", Float64, queue_size=1)
+    servo_pub = rospy.Publisher("commands/servo/position", Float64, queue_size=1)
     joyManager = joystick_manager()
     joyObserver = joystick_vesc_msg_creator()
 
     joyManager.register_observer(joyObserver)
 
     rate = rospy.Rate(20)
-    vesc_input = VescInput()
-    joyManager.Start()
+    speed_msg = Float64()
+    duty_msg = Float64()
+    servo_msg = Float64()
+    brake_msg = Float64()
+    #vesc_input = VescInput()
+    joyManager.start()
     while not rospy.is_shutdown():
         while not joyObserver.msg_ready():
             rate.sleep()
             continue
-
+        """
         vesc_input.write_brake, /
         vesc_input.write_speed, /
         vesc_input.write_servo_position, /
         vesc_input.write_duty_cycle = joyObserver.get_send_message()
         control_pub.publish(vesc_input)
+        """
+        brake_msg.data, speed_msg.data, servo_msg.data, duty_msg.data = joyObserver.get_send_message()
+        brake_pub.publish(brake_msg)
+        speed_pub.publish(speed_msg)
+        servo_pub.publish(servo_msg)
+        duty_pub.publish(duty_msg)
         rate.sleep()
