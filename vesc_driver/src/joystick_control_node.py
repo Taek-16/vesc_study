@@ -33,18 +33,22 @@ class joystick_vesc_msg_creator:
         self.is_ready = True
         if event_type == JOYAXISMOTION:
             if key == 2 :
-                #self.fbrake = self.__convert_brake(value)
-                publish_value(self.brake_pub, self.__convert_brake(value))
+                self.fbrake = self.__convert_brake(value)
+                publish_value(self.brake_pub, self.fbrake)
             elif key == 5 :
-                #self.fspeed = self.__convert_speed(value)
-                publish_value(self.speed_pub, self.__convert_speed(value))
+                self.fspeed = self.__convert_speed(value)
+                publish_value(self.speed_pub, self.fspeed)
             elif key == 0 :
-                #self.servo_position = self.__convert_servo(value)
-                publish_value(self.servo_pub, self.__convert_servo(value))
+                self.servo_position = self.__convert_servo(value)
+                publish_value(self.servo_pub, self.servo_position)
         elif event_type == JOYHATMOTION:
             if key == 0 :
-                #self.fduty_cycle += self.__convert_duty_cycle(value[1])
-                publish_value(self.duty_pub, self.__convert_duty_cycle(value[1]))
+                self.fduty_cycle += self.__convert_duty_cycle(value[1])
+                if self.fduty_cycle > 1 :
+                    self.fduty_cycle = 1
+                elif self.fduty_cycle < -1:
+                    self.fduty_cycle = -1
+                publish_value(self.duty_pub, self.fduty_cycle)
 
     def __convert_speed(self, value):
         return abs((value + 1) * 1000)
@@ -61,6 +65,14 @@ class joystick_vesc_msg_creator:
     def get_send_message(self):
         self.is_ready = False
         return self.fbrake, self.fspeed, self.servo_position, self.duty_cycle
+
+    def send_max_message(self):
+        if self.fbrake > 1 :
+            publish_value(self.brake_pub,self.fbrake)
+        if self.fspeed > 2 :
+            publish_value(self.speed_pub, self.fspeed)
+        if self.fduty_cycle != 0 :
+            publish_value(self.duty_pub, self.fduty_cycle)
 
     def msg_ready(self):
         return self.is_ready
