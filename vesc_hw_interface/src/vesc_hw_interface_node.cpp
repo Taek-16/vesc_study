@@ -19,8 +19,9 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "vesc_hw_interface_node");
-
   ros::NodeHandle nh, nh_private("~");
+  nh_private.setParam("port","/dev/ttyACM0");
+  nh_private.setParam("command_mode","position");
   vesc_hw_interface::VescHwInterface vesc_hw_interface;
   vesc_hw_interface.init(nh, nh_private);
 

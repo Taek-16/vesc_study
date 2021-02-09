@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   nodelet
   pluginlib
   roscpp
+  rospy
   std_msgs
   vesc_msgs
   serial
