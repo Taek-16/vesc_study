@@ -32,7 +32,7 @@ class joystick_vesc_msg_creator:
             elif key == 5 :
                 self.fspeed = self.__convert_speed(value)
             elif key == 0 :
-                self.servo_position = self.__convert_servo(value)
+                self.fservo_position = self.__convert_servo(value)
         elif event_type == JOYHATMOTION:
             if key == 0 :
                 self.fduty_cycle += self.__convert_duty_cycle(value[1])
@@ -51,7 +51,7 @@ class joystick_vesc_msg_creator:
 
     def get_send_message(self):
         self.is_ready = False
-        return self.fbrake, self.fspeed, self.servo_position, self.duty_cycle
+        return self.fbrake, self.fspeed, self.fservo_position, self.duty_cycle
 
     def msg_ready(self):
         return self.is_ready
