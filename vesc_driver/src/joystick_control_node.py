@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#-*-coding:utf-8-*-
 
 from pygame.locals import *
 import rospy
@@ -117,6 +116,7 @@ def main():
         vesc_input.write_duty_cycle = joyObserver.get_send_message()
         control_pub.publish(vesc_input)
         """
+        joyObserver.send_max_message()
         rate.sleep()
 
 if __name__ == '__main__' :
