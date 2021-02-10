@@ -45,12 +45,10 @@ class depth_camera_saver :
         self.rgb_img = rgb_img
         self.depth_img = depth_img
 
-    def write_img(self):
-        self.is_ready = False
-        current_time = time.strftime('%Y_%m_%d_%Hh%Mm%Ss', time.localtime(time.time()))
-        
+    def write_img(self, current_time):
         cv2.imwrite("./"+self.folder_path + "/" +str(current_time)+"_rgb.png", self.rgb_img)
         cv2.imwrite("./"+self.folder_path + "/" +str(current_time)+"_depth.png", self.depth_img)
+
     def ready_data(self):
         return self.is_ready
 
@@ -74,7 +72,7 @@ class state_saver :
     def pose_callback(self, pose):
         self.waypoint = [pose.position.x, pose.position.y]
     def head_callback(self, heading):
-        self.heading = heading.value
+        self.heading = heading.data
     def current_callback(self, value):
         self.current = value.data
     def brake_callback(self, value):
@@ -115,7 +113,8 @@ def main():
         while not img_saver.ready_data():
             rate.sleep()
             continue
-        time_stamp = time.strftime('%Y_%m_%d_%Hh%Mm%Ss', time.localtime(time.time()))
+        print(img_saver.ready_data())
+        time_stamp = time.strftime('%Y_%m_%d_%Hh%Mm%S.%fs', time.localtime(time.time()))
 
         duty, current, brake, speed, position, servo, waypoint, heading = state_hub.get_all()
         data_dict["time_stamp"].append(time_stamp)
@@ -128,6 +127,7 @@ def main():
         data_dict["heading"].append(heading)
         data_dict["waypoint"].append(waypoint)
 
+        img_saver.write_img(time_stamp)
         with open("./"+str(savingTimestamp)+ "/" +str(savingTimestamp)+".pickle", "wb") as handle:
             pickle.dump(data_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 

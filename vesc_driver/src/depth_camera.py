@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import threading
 
-VISUALIZATION = True
+VISUALIZATION = False
 
 class real_sense(threading.Thread):
     def __init__(self, alpha = 0.1, width = 640, height = 480):

@@ -50,7 +50,7 @@ class joystick_vesc_msg_creator:
                 publish_value(self.duty_pub, self.fduty_cycle)
 
     def __convert_speed(self, value):
-        return abs((value + 1) * 1000)
+        return abs((value + 1) * 2000)
 
     def __convert_servo(self, value):
         return abs((value + 1)/2)
@@ -68,9 +68,11 @@ class joystick_vesc_msg_creator:
     def send_max_message(self):
         if self.fbrake > 1 :
             publish_value(self.brake_pub,self.fbrake)
-        if self.fspeed > 2 :
+            return
+        if self.fspeed > 200 :
             publish_value(self.speed_pub, self.fspeed)
-        if self.fduty_cycle != 0 :
+        if abs(self.fduty_cycle) > 0.09 :
+            print('duty_cycle = ', self.fduty_cycle)
             publish_value(self.duty_pub, self.fduty_cycle)
 
     def msg_ready(self):
