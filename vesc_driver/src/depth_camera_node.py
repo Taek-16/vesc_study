@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from datetime import datetime
 import numpy as np
 import cv2
 import threading
@@ -99,7 +100,7 @@ def createFolder(dirName):
 def main():
     rospy.init_node("camera_node")
 
-    savingTimestamp = time.strftime('%Y_%m_%d_%Hh%Mm%Ss', time.localtime(time.time()))
+    timestamp = datetime.now().strftime('%Y%m%d%Hh%Mm%S.%fs')[:-4]
     createFolder(savingTimestamp)
     realsense_manager = real_sense()
     img_saver = depth_camera_saver(savingTimestamp)
