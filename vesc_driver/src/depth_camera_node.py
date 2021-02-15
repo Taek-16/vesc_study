@@ -100,7 +100,7 @@ def createFolder(dirName):
 def main():
     rospy.init_node("camera_node")
 
-    timestamp = datetime.now().strftime('%Y%m%d%Hh%Mm%S.%fs')[:-4]
+    savingTimestamp = time.strftime('%Y_%m_%d_%Hh%Mm%Ss', time.localtime(time.time()))
     createFolder(savingTimestamp)
     realsense_manager = real_sense()
     img_saver = depth_camera_saver(savingTimestamp)
@@ -115,7 +115,7 @@ def main():
             rate.sleep()
             continue
         print(img_saver.ready_data())
-        time_stamp = time.strftime('%Y_%m_%d_%Hh%Mm%S.%fs', time.localtime(time.time()))
+        time_stamp = datetime.now().strftime('%Y%m%d%Hh%Mm%S.%f')[:-3]
 
         duty, current, brake, speed, position, servo, waypoint, heading = state_hub.get_all()
         data_dict["time_stamp"].append(time_stamp)

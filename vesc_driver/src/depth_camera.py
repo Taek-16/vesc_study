@@ -44,7 +44,7 @@ class real_sense(threading.Thread):
                 color_image = np.asanyarray(color_frame.get_data())
 
                 # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
-                depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.1), cv2.COLORMAP_JET)
+                depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
                 self.notify_observer(color_image,depth_colormap)
 
