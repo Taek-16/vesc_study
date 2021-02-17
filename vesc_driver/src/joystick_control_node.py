@@ -22,11 +22,13 @@ class joystick_vesc_msg_creator:
         self.fspeed = 0.0
         self.fservo_position = 0.0
         self.fduty_cycle = 0.0
+        self.frecord_start = -1.0
         self.is_ready = False
         self.speed_pub = rospy.Publisher("commands/motor/speed", Float64, queue_size=1)
         self.duty_pub = rospy.Publisher("commands/motor/duty_cycle", Float64, queue_size=1)
         self.brake_pub = rospy.Publisher("commands/motor/brake", Float64, queue_size=1)
         self.servo_pub = rospy.Publisher("commands/servo/position", Float64, queue_size=1)
+        self.record_pub = rospy.Publisher("record/dataset",Float64, queue_size=1)
     
     def notify(self, event_type, key, value):
         self.is_ready = True
@@ -40,6 +42,7 @@ class joystick_vesc_msg_creator:
             elif key == 0 :
                 self.servo_position = self.__convert_servo(value)
                 publish_value(self.servo_pub, self.servo_position)
+            
         elif event_type == JOYHATMOTION:
             if key == 0 :
                 self.fduty_cycle += self.__convert_duty_cycle(value[1])
@@ -48,6 +51,11 @@ class joystick_vesc_msg_creator:
                 elif self.fduty_cycle < -1:
                     self.fduty_cycle = -1
                 publish_value(self.duty_pub, self.fduty_cycle)
+        elif event_type == JOYBUTTONDOWN:
+            if key == 7 :
+                self.frecord_start *= -1
+                publish_value(self.record_pub, self.frecord_start)
+
 
     def __convert_speed(self, value):
         return abs((value + 1) * 2000)
@@ -56,7 +64,7 @@ class joystick_vesc_msg_creator:
         return abs((value + 1)/2)
 
     def __convert_duty_cycle(self, value):
-        return value * 0.1
+        return value * 0.05
 
     def __convert_brake(self, value):
         return abs((value + 1)*10)
@@ -71,9 +79,11 @@ class joystick_vesc_msg_creator:
             return
         if self.fspeed > 200 :
             publish_value(self.speed_pub, self.fspeed)
-        if abs(self.fduty_cycle) > 0.09 :
+        if abs(self.fduty_cycle) > 0.04 :
             print('duty_cycle = ', self.fduty_cycle)
             publish_value(self.duty_pub, self.fduty_cycle)
+        else :
+            self.duty_pub = 0
 
     def msg_ready(self):
         return self.is_ready

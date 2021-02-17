@@ -64,9 +64,11 @@ class state_saver :
         servo_sub_ = rospy.Subscriber("commands/servo/position", Float64, self.servo_callback, queue_size=1)
         way_sub = rospy.Subscriber('current_tm', Pose, self.pose_callback, queue_size=1)
         heading_sub = rospy.Subscriber('heading', Float64, self.head_callback, queue_size=1)
+        record_sub = rospy.Subscriber('record/dataset', Float64, self.record_callback, queue_size=1)
         self.waypoint = []
         self.duty, self.current, self.brake, self.speed, self.position, self.servo = 0,0,0,0,0,0
         self.heading = 0
+        self.record_value = -1
 
     def duty_callback(self, value):
         self.duty = value.data
@@ -84,11 +86,16 @@ class state_saver :
         self.position = value.data
     def servo_callback(self, value):
         self.servo = value.data
+    def record_callback(self, value):
+        self.record_value = value.data
 
     def get_all(self):
         return self.duty, self.current, self.brake, self.speed, self.position, self.servo, self.waypoint, self.heading
     def get_waypiont(self):
         return self.waypoint
+    def ready_record(self):
+        return (self.record_value > 0)
+
 
 def createFolder(dirName):
     try:
@@ -114,7 +121,12 @@ def main():
         while not img_saver.ready_data():
             rate.sleep()
             continue
-        print(img_saver.ready_data())
+        while not state_hub.ready_record():
+            print('not recording')
+            rate.sleep()
+            continue
+        print('recording')
+        print(waypoint)
         time_stamp = datetime.now().strftime('%Y%m%d%Hh%Mm%S.%f')[:-3]
 
         duty, current, brake, speed, position, servo, waypoint, heading = state_hub.get_all()
