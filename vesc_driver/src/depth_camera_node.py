@@ -126,10 +126,11 @@ def main():
             rate.sleep()
             continue
         print('recording')
-        print(waypoint)
         time_stamp = datetime.now().strftime('%Y%m%d%Hh%Mm%S.%f')[:-3]
 
         duty, current, brake, speed, position, servo, waypoint, heading = state_hub.get_all()
+        print(waypoint)
+        
         data_dict["time_stamp"].append(time_stamp)
         data_dict["motor_current"].append(current)
         data_dict["duty_cycle"].append(duty)

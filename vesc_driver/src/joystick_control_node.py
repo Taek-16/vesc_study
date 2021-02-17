@@ -83,7 +83,7 @@ class joystick_vesc_msg_creator:
             print('duty_cycle = ', self.fduty_cycle)
             publish_value(self.duty_pub, self.fduty_cycle)
         else :
-            self.duty_pub = 0
+            self.fduty_cycle = 0.0
 
     def msg_ready(self):
         return self.is_ready
